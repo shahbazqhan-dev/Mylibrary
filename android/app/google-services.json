@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "36052543075",
+    "project_id": "my-library-b3424",
+    "storage_bucket": "my-library-b3424.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:36052543075:android:7dc51bdce397ce3a07fa56",
+        "android_client_info": {
+          "package_name": "com.mylibrary"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMazM8wTzgGwOz7taecIxkjkU4ZppOk6o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
