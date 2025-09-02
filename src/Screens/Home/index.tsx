@@ -263,7 +263,7 @@ function HomeScreen() {
       ) : (
         <ActivityIndicator size="large" color="#0000ff" />
       )}
-      {console.log('BOOKS', toRead)}
+      
     </View>
   );
 }
