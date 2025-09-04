@@ -4,7 +4,9 @@ import BookScreen from '../Screens/MyBooks';
 import { createStaticNavigation } from '@react-navigation/native';
 import AntDesign from '@react-native-vector-icons/ant-design';
 const MyTabs = createBottomTabNavigator({
+  
   screenOptions: ({ route }) => ({
+    headerShown: false,
     tabBarIcon: ({ focused, color, size }) => {
       let iconName;
 

@@ -19,11 +19,13 @@ import {
 import { Background, Button } from '@react-navigation/elements';
 import {
   createUserWithEmailAndPassword,
+  firebase,
   getAuth,
 } from '@react-native-firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../../Contexts/Authcontexts';
 import AntDesign from '@react-native-vector-icons/ant-design';
+import firestore from '@react-native-firebase/firestore';
 
 function RegisterScreen() {
   const [email, setEmail] = React.useState('');
@@ -144,6 +146,7 @@ function RegisterScreen() {
               keyboardType={'visible-password'}
               placeholder="enter password"
               value={password}
+              secureTextEntry={secureTextEntry}
               onChangeText={text => {
                 checkPassword(text), setPassword(text);
               }}
@@ -152,13 +155,10 @@ function RegisterScreen() {
               style={{}}
               onPress={() => setSecureTextEntry(!secureTextEntry)}
             >
-              {/* You can use an icon library here, or simple text */}
               <AntDesign
                 name={secureTextEntry ? 'eye' : 'eye-invisible'}
                 size={20}
               />
-              {/* Example with an icon (if you have react-native-vector-icons installed) */}
-              {/* <Icon name={secureTextEntry ? 'eye-off' : 'eye'} size={24} color="gray" /> */}
             </TouchableOpacity>
           </View>
           {passwordError ? (
@@ -183,8 +183,18 @@ function RegisterScreen() {
             createUserWithEmailAndPassword(getAuth(), email, password)
               .then(async res => {
                 console.log('registration successful', res.user.uid);
-                await AsyncStorage.setItem('userToken', res.user.uid);
-                signIn(res.user.uid);
+                firestore()
+                  .collection('Users')
+                  .doc(res.user.uid)
+                  .set({ username, email })
+                  .then(async response => {
+                    console.log('registered');
+                    await AsyncStorage.setItem('userToken', res.user.uid);
+                    signIn(res.user.uid);
+                  })
+                  .catch(err => {
+                    console.log(err, 'dsfghjkl');
+                  });
               })
               .catch(err => {
                 if (err.code === 'auth/email-already-in-use') {

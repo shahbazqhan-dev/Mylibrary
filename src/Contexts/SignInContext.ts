@@ -4,7 +4,9 @@ import * as React from 'react';
 const defaultValue = {
     token:'',
     email:'',
+    username:'',
     isSignedIn:false
+    
 }
 const SignInContext = React.createContext(defaultValue)
 export {defaultValue};
@@ -34,6 +36,11 @@ export const signInReducer =  (prevState, action) => {
             ...prevState,
             isSignedIn: false,
             userToken: "",
+          };
+          case 'SET_USERNAME':
+          return {
+            ...prevState,
+            username: action.payload,
           };
       }
     }

@@ -8,6 +8,7 @@ import {
   FlatList,
   TouchableOpacity,
   Button,
+  ToastAndroid,
 } from 'react-native';
 import { Item } from 'react-native-paper/lib/typescript/components/Drawer/Drawer';
 import SavedBooksContext from '../../Contexts/SavedBooksContext';
@@ -19,8 +20,20 @@ function BookScreen() {
   const { toRead, removeItem } = React.useContext(SavedBooksContext);
   const [isLoading, setIsLoading] = useState(false);
 
+  const showDeleteToast = () => {
+    ToastAndroid.show(
+      'The Book has been deleted from your collection',
+      ToastAndroid.SHORT,
+    );
+  };
   return (
-    <View style={{ flex: 1 }}>
+    <View
+      style={{ flex: 1, alignItems: 'center', justifyContent: 'space-evenly' }}
+    >
+      {/* <View style={{}}>
+<Text style={{fontSize:20,marginTop:30, marginBottom:20, fontWeight:'bold'}}> My books </Text>
+
+      </View> */}
       {toRead?.length ? (
         <FlatList
           data={toRead}
@@ -36,6 +49,7 @@ function BookScreen() {
                 borderRadius: 10,
                 borderColor: '#dddddd',
                 elevation: 10,
+                marginTop: 25,
               }}
             >
               <Image
@@ -71,7 +85,10 @@ function BookScreen() {
                     marginTop: 10,
                     marginBottom: 10,
                   }}
-                  onPress={() => removeItem(item.cover_i)}
+                  onPress={() => {
+                    removeItem(item.cover_i);
+                    showDeleteToast();
+                  }}
                 >
                   <AntDesign name="delete" color="#231e1eff" size={30} />
                 </TouchableOpacity>

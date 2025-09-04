@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {
+  ToastAndroid,
   ActivityIndicator,
   Image,
   View,
@@ -9,15 +10,6 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
-import {
-  createStaticNavigation,
-  StaticParamList,
-  useNavigation,
-} from '@react-navigation/native';
-import {
-  createNativeStackNavigator,
-  NativeStackScreenProps,
-} from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../../Contexts/Authcontexts';
 import { useState, useEffect } from 'react';
@@ -32,6 +24,7 @@ import SavedBooksContext, {
   bookcontext,
 } from '../../Contexts/SavedBooksContext';
 import { Item } from 'react-native-paper/lib/typescript/components/Drawer/Drawer';
+import firestore from '@react-native-firebase/firestore';
 
 function HomeScreen() {
   const [data, setData] = useState(null);
@@ -41,10 +34,17 @@ function HomeScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const { signOut } = React.useContext(AuthContext);
   const { addItem, removeItem, toRead } = React.useContext(SavedBooksContext);
-
+  const ref = React.useRef(null);
   useEffect(() => {
     fetchtrending();
   }, [filter]);
+
+  const showToast = () => {
+    ToastAndroid.show(
+      'The Book has been saved to your collection',
+      ToastAndroid.SHORT,
+    );
+  };
 
   // useEffect(() => {
   //   if (searchText.length > 0) {
@@ -88,45 +88,14 @@ function HomeScreen() {
     <View style={{ flex: 1 }}>
       <View
         style={{
-          height: '15%',
-          alignItems: 'flex-end',
-          justifyContent: 'center',
-        }}
-      >
-        <TouchableOpacity
-          style={{
-            borderRadius: 20,
-            paddingRight: 10,
-            paddingBottom: 5,
-            paddingLeft: 5,
-            paddingTop: 5,
-            marginTop: 10,
-            marginRight: 20,
-            backgroundColor: 'black',
-          }}
-          onPress={async () => {
-            await firebaseSignOut(getAuth());
-            signOut();
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 20,
-              color: 'white',
-            }}
-          >
-            Sign Out
-          </Text>
-        </TouchableOpacity>
-      </View>
-      <View
-        style={{
           alignItems: 'center',
+          flexDirection: 'row',
+          justifyContent: 'center',
         }}
       >
         <TextInput
           placeholder="Search"
-          style={{ borderWidth: 1, borderRadius: 15, width: '90%' }}
+          style={{ borderWidth: 1, borderRadius: 15, width: '75%' }}
           value={searchText}
           onChangeText={setSearchText}
           onSubmitEditing={fetchData}
@@ -142,51 +111,41 @@ function HomeScreen() {
         >
           <Text
             style={{
-              fontSize: 20,
               color: 'black',
             }}
           >
             Search
           </Text>
         </TouchableOpacity>
-        <View
+      </View>
+      <View
+        style={{
+          width: 350,
+          flexDirection: 'row',
+          borderRadius: 15,
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+        }}
+      >
+        <Text>Filter</Text>
+
+        <Picker
           style={{
-            width: 350,
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            backgroundColor: 'lightgray',
-            borderRadius: 15,
-            alignItems: 'center',
+            height: 50,
+            width: 30,
+            borderColor: 'black',
+            borderWidth: 1,
+          }}
+          selectedValue={filter}
+          onValueChange={itemValue => {
+            setfilter(itemValue), setSearchText('');
           }}
         >
-          <>
-            <Text
-              style={{
-                fontSize: 20,
-                paddingLeft: 10,
-              }}
-            >
-              Filter
-            </Text>
-          </>
-          <Picker
-            style={{
-              height: 60,
-              width: 100,
-              borderColor: 'black',
-              borderWidth: 1,
-            }}
-            selectedValue={filter}
-            onValueChange={itemValue => {
-              setfilter(itemValue), setSearchText('');
-            }}
-          >
-            <Picker.Item label="Now" value="now" />
-            <Picker.Item label="Daily " value="daily" />
-            <Picker.Item label="Weekly" value="weekly" />
-            <Picker.Item label="Monthly" value="monthly" />
-          </Picker>
-        </View>
+          <Picker.Item label="Now" value="now" />
+          <Picker.Item label="Daily " value="daily" />
+          <Picker.Item label="Weekly" value="weekly" />
+          <Picker.Item label="Monthly" value="monthly" />
+        </Picker>
       </View>
       <View style={{ borderRadius: 10 }}>
         <Text
@@ -216,7 +175,7 @@ function HomeScreen() {
                 margin: 10,
                 borderRadius: 10,
                 borderColor: '#dddddd',
-                elevation: 10,
+                elevation: 12,
               }}
             >
               <Image
@@ -252,7 +211,10 @@ function HomeScreen() {
                     marginTop: 10,
                     marginBottom: 10,
                   }}
-                  onPress={() => addItem(item)}
+                  onPress={() => {
+                    addItem(item);
+                    showToast();
+                  }}
                 >
                   <AntDesign name="save" color="#231e1eff" size={30} />
                 </TouchableOpacity>
@@ -263,7 +225,6 @@ function HomeScreen() {
       ) : (
         <ActivityIndicator size="large" color="#0000ff" />
       )}
-      
     </View>
   );
 }

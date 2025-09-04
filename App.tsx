@@ -4,6 +4,7 @@
  *
  * @format
  */
+import { StatusBar, useColorScheme } from 'react-native';
 import { StyleSheet, View } from 'react-native';
 import { Navigation } from './src/Navigation/RootNavigator';
 import SignInContext, {
@@ -18,6 +19,9 @@ import {
   defaultValue as booksDefault,
   SavedBooksReducer,
 } from './src/Contexts/SavedBooksContext';
+import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
+import { Header } from './src/Components/Header';
+import firestore from '@react-native-firebase/firestore';
 
 function App() {
   const [state, dispatch] = React.useReducer(signInReducer, defaultValue);
@@ -30,9 +34,16 @@ function App() {
     const bootstrapAsync = async () => {
       let userToken;
       let savedBooks;
+      let user;
       try {
         userToken = await AsyncStorage.getItem('userToken');
         savedBooks = await AsyncStorage.getItem('userBooks');
+        if (userToken) {
+          user = await firestore().collection('Users').doc(userToken).get();
+          console.log('yaha dekho', user.data().username);
+          dispatch({ type: 'SET_USERNAME', payload: user.data().username });
+        }
+
         console.log(savedBooks);
         if (savedBooks)
           booksDispatch({
@@ -56,7 +67,11 @@ function App() {
     }),
     [],
   );
-
+  const colorScheme = useColorScheme(); // 'light' or 'dark'
+  <StatusBar
+    barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'}
+    backgroundColor={colorScheme === 'dark' ? '#000000' : '#FFFFFF'} // Example: Black for dark, white for light
+  />;
   const bookContext = React.useMemo(
     () => ({
       addItem: async (item: any) => {
@@ -72,17 +87,24 @@ function App() {
   );
 
   return (
-    <View style={styles.container}>
-      <AuthContext.Provider value={authContext}>
-        <SignInContext.Provider value={state}>
-          <SavedBooksContext.Provider
-            value={{ ...bookContext, toRead: booksState.toRead }}
-          >
-            <Navigation />
-          </SavedBooksContext.Provider>
-        </SignInContext.Provider>
-      </AuthContext.Provider>
-    </View>
+    <SafeAreaProvider>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#f0f0f0' }}>
+        <StatusBar
+          barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'}
+          backgroundColor={colorScheme === 'dark' ? '#000000' : '#FFFFFF'} // Example: Black for dark, white for light
+        />
+        <AuthContext.Provider value={authContext}>
+          <SignInContext.Provider value={state}>
+            <SavedBooksContext.Provider
+              value={{ ...bookContext, toRead: booksState.toRead }}
+            >
+              <Header />
+              <Navigation />
+            </SavedBooksContext.Provider>
+          </SignInContext.Provider>
+        </AuthContext.Provider>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
